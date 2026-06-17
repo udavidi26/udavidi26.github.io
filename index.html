@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Captain's App</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f0f4ff;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+  .logo {
+    font-size: 36px;
+    margin-bottom: 8px;
+  }
+  h1 {
+    font-size: 22px;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 4px;
+    text-align: center;
+  }
+  .tagline {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 40px;
+    text-align: center;
+  }
+  .cards {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    width: 100%;
+    max-width: 360px;
+  }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid #e5e7eb;
+    padding: 24px;
+    text-decoration: none;
+    color: #1a1a1a;
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.10);
+  }
+  .card-icon {
+    font-size: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .icon-map { background: #e0f2fe; }
+  .icon-tracker { background: #d1fae5; }
+  .card-text h2 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 3px;
+  }
+  .card-text p {
+    font-size: 13px;
+    color: #888;
+    line-height: 1.4;
+  }
+  .arrow {
+    margin-left: auto;
+    color: #ccc;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .footer {
+    margin-top: 40px;
+    font-size: 12px;
+    color: #bbb;
+  }
+</style>
+</head>
+<body>
+
+<div class="logo">🚑</div>
+<h1>Captain's App</h1>
+<p class="tagline">Hatzolah CJ — Command Center</p>
+
+<div class="cards">
+  <a class="card" href="https://udavidi26.github.io/hatzalah-map/" target="_blank">
+    <div class="card-icon icon-map">🗺️</div>
+    <div class="card-text">
+      <h2>Member Map</h2>
+      <p>View member & applicant locations across the coverage area</p>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+
+  <a class="card" href="https://udavidi26.github.io/member-call-tracker/" target="_blank">
+    <div class="card-icon icon-tracker">📊</div>
+    <div class="card-text">
+      <h2>Call Tracker</h2>
+      <p>Track member call progress toward quarterly goals</p>
+    </div>
+    <div class="arrow">›</div>
+  </a>
+</div>
+
+<p class="footer">For internal use only</p>
+
+</body>
+</html>
