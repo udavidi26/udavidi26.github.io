@@ -45,6 +45,7 @@
   table{width:100%;border-collapse:collapse}
   th{text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);padding:11px 12px;border-bottom:1px solid var(--line);cursor:pointer;user-select:none;white-space:nowrap}
   th.sorted::after{content:" \25BC";font-size:.6rem}
+  .lbl-sm{display:none}.lbl-lg{display:inline}
   th.sorted.asc::after{content:" \25B2"}
   td{padding:11px 12px;border-bottom:1px solid var(--line);font-size:.92rem;vertical-align:middle}
   tr:last-child td{border-bottom:0}
@@ -90,15 +91,25 @@
     .seg button{flex:1;padding:9px 6px;font-size:.78rem;text-align:center}
     .declinebtn{width:100%;text-align:center}
     .declineactive{align-self:flex-start}
-    td,th{padding:9px 7px}
-    .name{font-size:.9rem}.id{font-size:.72rem}
-    .trendchip{font-size:.8rem}
-    /* keep the 6-month bars on mobile, just tighter */
-    .mbars .track,.mbars .col{height:30px}
-    .mbars .b{width:7px}
-    .mbars .lb{width:7px;font-size:7px}
+    td,th{padding:8px 5px}
+    .name{font-size:.88rem;line-height:1.15}.id{font-size:.7rem}
+    .trendchip{font-size:.78rem;gap:2px}
+    /* fit all columns on a phone: constrain widths + shrink bars */
+    table{table-layout:fixed;width:100%}
+    th{font-size:.6rem;padding:8px 4px;letter-spacing:.02em}
+    .num{font-size:.9rem}
+    th[data-k="name"]{width:34%}
+    th[data-k="calls"]{width:16%}
+    th[data-k="bars"]{width:36%}
+    th[data-k="trend"]{width:14%}
+    .mbars{transform:scale(.82);transform-origin:left center}
+    .mbars .track,.mbars .col{height:28px}
+    .mbars .b{width:6px}
+    .mbars .lb{width:6px;font-size:6px}
     .mbars .labels{gap:2px}.mbars .track{gap:2px}
-    td.bars-col{padding:6px 4px}
+    td.bars-col{padding:6px 2px}
+    .trendchip .arw{font-size:.68rem}
+    .lbl-lg{display:none}.lbl-sm{display:inline}
   }
   @media(max-width:400px){
     .stats{grid-template-columns:1fr}
@@ -176,7 +187,7 @@
   <th data-k="name">Member</th>
   <th data-k="type" class="hide-sm">Type</th>
   <th data-k="calls" class="num" id="callsHead">Calls</th>
-  <th data-k="bars" class="bars-col">6-month calls</th>
+  <th data-k="bars" class="bars-col"><span class="lbl-lg">6-month calls</span><span class="lbl-sm">6-mo</span></th>
   <th data-k="trend">Trend (3 mo)</th>
 </tr></thead><tbody id="tbody"></tbody></table>
 <div class="empty" id="empty" style="display:none">No members match.</div></div>
