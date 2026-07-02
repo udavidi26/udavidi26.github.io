@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Member Call Progress — Q2 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; color: #1a1a1a; padding: 16px; }
+  h1 { font-size: 18px; font-weight: 600; margin-bottom: 2px; }
+  .subtitle { font-size: 13px; color: #666; margin-bottom: 16px; }
+  .tabs { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
+  .tab { padding: 7px 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; cursor: pointer; background: #fff; color: #555; }
+  .tab.active { background: #1a56db; color: #fff; border-color: #1a56db; font-weight: 500; }
+  .toggle-row { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
+  .toggle-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid #ddd; font-size: 13px; cursor: pointer; background: #fff; color: #555; }
+  .toggle-btn.active { background: #374151; color: #fff; border-color: #374151; font-weight: 500; }
+  .deputy-toggle.active { background: #7c3aed; border-color: #7c3aed; }
+  .legend { display: flex; gap: 12px; font-size: 12px; color: #666; align-items: center; margin-left: auto; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; margin-right: 3px; }
+  .summary-bar { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card { background: #fff; border-radius: 10px; padding: 12px 14px; border: 1px solid #e5e7eb; }
+  .stat-label { font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px; }
+  .stat-value { font-size: 20px; font-weight: 600; }
+  .stat-sub { font-size: 11px; color: #888; margin-top: 2px; }
+  .table-wrap { background: #fff; border-radius: 10px; border: 1px solid #e5e7eb; overflow: hidden; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { font-size: 11px; font-weight: 600; color: #888; text-align: left; padding: 10px 12px; border-bottom: 1px solid #f0f0f0; background: #fafafa; text-transform: uppercase; letter-spacing: 0.04em; }
+  th.right { text-align: right; }
+  td { padding: 9px 12px; border-bottom: 1px solid #f5f5f5; vertical-align: middle; }
+  td.right { text-align: right; }
+  tr:last-child td { border-bottom: none; }
+  .unit-badge { font-size: 11px; color: #999; background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+  .deputy-badge { font-size: 11px; color: #7c3aed; background: #ede9fe; padding: 2px 6px; border-radius: 4px; margin-left: 4px; }
+  .prog-wrap { width: 80px; background: #f0f0f0; border-radius: 4px; height: 6px; display: inline-block; vertical-align: middle; }
+  .prog-fill { height: 6px; border-radius: 4px; }
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
+  .on-track { background: #d1fae5; color: #065f46; }
+  .behind { background: #fee2e2; color: #991b1b; }
+  .pct-label { font-size: 12px; color: #888; margin-left: 5px; }
+  .calls-left { font-size: 12px; color: #888; }
+  .deputy-note { font-size: 12px; color: #7c3aed; background: #f5f3ff; border: 1px solid #ddd6fe; border-radius: 8px; padding: 8px 12px; margin-bottom: 14px; }
+  .loading { text-align: center; padding: 40px; color: #888; font-size: 14px; }
+  .error { text-align: center; padding: 40px; color: #dc2626; font-size: 14px; background:#fff; border-radius:10px; border:1px solid #e5e7eb; }
+  .last-updated { font-size: 11px; color: #aaa; margin-left: auto; }
+  @media (max-width: 480px) {
+    .summary-bar { grid-template-columns: 1fr 1fr; }
+    .summary-bar .stat-card:last-child { grid-column: span 2; }
+    th.hide-mobile, td.hide-mobile { display: none; }
+    .prog-wrap { width: 55px; }
+  }
+</style>
+</head>
+<body>
+
+<h1>Member Call Progress</h1>
+<p class="subtitle">Apr 15, 2026 – <span id="end-date"></span> &nbsp;·&nbsp; <span id="days-elapsed"></span> of 90 days &nbsp;·&nbsp; Data as of: <strong><span id="last-updated">loading...</span></strong></p>
+
+<div class="tabs" id="tabs" style="display:none">
+  <button class="tab active" onclick="setGroup(45)">45-call goal</button>
+  <button class="tab" onclick="setGroup(75)">75-call goal</button>
+  <button class="tab" onclick="setGroup(90)">90-call goal</button>
+</div>
+
+<div id="toggle-section" style="display:none">
+  <div class="toggle-row">
+    <button class="toggle-btn active" onclick="setMode('with')">With Shabbos</button>
+    <button class="toggle-btn" onclick="setMode('without')">Without Shabbos</button>
+    <button class="toggle-btn deputy-toggle" id="dep-toggle" onclick="toggleDeputy()">+ Day Watch</button>
+    <div class="legend">
+      <span><span class="dot" style="background:#10b981"></span>On track</span>
+      <span><span class="dot" style="background:#ef4444"></span>Behind</span>
+    </div>
+  </div>
+  <div id="deputy-note" style="display:none" class="deputy-note">
+    🛡 <strong>Day Watch included:</strong> Each shift counts as +2 calls toward the member's goal.
+  </div>
+</div>
+
+<div id="loading" class="loading">⏳ Loading latest data...</div>
+<div id="error" class="error" style="display:none">❌ Could not load data. Please try refreshing the page.</div>
+
+<div id="main-content" style="display:none">
+  <div class="summary-bar" id="summary"></div>
+  <div class="table-wrap"><table id="main-table"></table></div>
+</div>
+
+<script>
+const SHEET_CSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS4LfC_f8iiLftBgVsojE3YKz87ebUu00qdEV6Syw_-ik2tgz6W_9TXX-CXty6urAq3C-ZnipE1JhQo/pub?gid=1633230605&single=true&output=csv';
+const START_DATE = new Date("2026-04-15");
+const TOTAL_DAYS = 90;
+const today = new Date();
+const daysElapsed = Math.min(TOTAL_DAYS, Math.max(1, Math.floor((today - START_DATE) / (1000*60*60*24))));
+const FRACTION = daysElapsed / TOTAL_DAYS;
+const endDateStr = today.toLocaleDateString("en-US", {month:"short", day:"numeric", year:"numeric"});
+
+let allMembers = [];
+let currentGroup = 45, currentMode = 'with', includeDeputy = false;
+
+async function loadData() {
+  try {
+    const res = await fetch(SHEET_CSV);
+    if (!res.ok) throw new Error('fetch failed');
+    const text = await res.text();
+    const lines = text.trim().split('\n');
+    // Row 2 col H (index 7) has the last updated date
+    const row2 = lines[1] ? lines[1].split(',') : [];
+    const lastUpdated = row2[7]?.trim().replace(/"/g,'') || '';
+
+    // skip header row
+    allMembers = lines.slice(1).map(line => {
+      const cols = line.split(',');
+      return {
+        id:   cols[0]?.trim().replace(/"/g,''),
+        name: cols[1]?.trim().replace(/"/g,''),
+        goal: parseInt(cols[2]?.trim()) || 0,
+        cw:   parseInt(cols[3]?.trim()) || 0,
+        cwo:  parseInt(cols[4]?.trim()) || 0,
+        dep:  parseInt(cols[5]?.trim()) || 0,
+      };
+    }).filter(m => m.id && m.goal);
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main-content').style.display = '';
+    document.getElementById('tabs').style.display = 'flex';
+    document.getElementById('toggle-section').style.display = '';
+    document.getElementById('last-updated').textContent = lastUpdated || 'unknown';
+    document.getElementById('end-date').textContent = endDateStr;
+    document.getElementById('days-elapsed').textContent = daysElapsed;
+
+    // Update tab counts
+    [45,75,90].forEach(g => {
+      const count = allMembers.filter(m => m.goal === g).length;
+      document.querySelectorAll('.tab').forEach(t => {
+        if (t.textContent.startsWith(g+'-call')) t.innerHTML = `${g}-call goal &nbsp;<span style="opacity:.6;font-weight:400">(${count})</span>`;
+      });
+    });
+
+    render();
+  } catch(e) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('error').style.display = '';
+  }
+}
+
+function setGroup(g) {
+  currentGroup = g;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.textContent.startsWith(g+'-call')));
+  render();
+}
+
+function setMode(m) {
+  currentMode = m;
+  document.querySelectorAll('.toggle-btn:not(.deputy-toggle)').forEach((b,j) =>
+    b.classList.toggle('active', (j===0&&m==='with')||(j===1&&m==='without')));
+  render();
+}
+
+function toggleDeputy() {
+  includeDeputy = !includeDeputy;
+  const btn = document.getElementById('dep-toggle');
+  btn.classList.toggle('active', includeDeputy);
+  btn.textContent = includeDeputy ? '✓ Day Watch ON' : '+ Day Watch';
+  document.getElementById('deputy-note').style.display = includeDeputy ? '' : 'none';
+  render();
+}
+
+function render() {
+  const members = allMembers.filter(m => m.goal === currentGroup);
+  const needed = currentGroup * FRACTION;
+
+  const data = members.map(m => {
+    const base = currentMode === 'with' ? m.cw : m.cwo;
+    const depCalls = includeDeputy ? m.dep * 2 : 0;
+    const calls = base + depCalls;
+    const pct = Math.round((calls / needed) * 100);
+    return { ...m, calls, depCalls, pct, onTrack: calls >= needed };
+  });
+
+  const onCount = data.filter(d => d.onTrack).length;
+  const behind = data.length - onCount;
+
+  document.getElementById('summary').innerHTML = `
+    <div class="stat-card">
+      <div class="stat-label">Days elapsed</div>
+      <div class="stat-value">${daysElapsed} / 90</div>
+      <div class="stat-sub">${Math.round(FRACTION*100)}% of quarter done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">On track</div>
+      <div class="stat-value" style="color:#059669">${onCount} / ${data.length}</div>
+      <div class="stat-sub">Need ${Math.round(needed)}+ calls by today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-label">Behind pace</div>
+      <div class="stat-value" style="color:#dc2626">${behind} members</div>
+      <div class="stat-sub">Goal: ${currentGroup} calls total</div>
+    </div>
+  `;
+
+  const sorted = [...data].sort((a,b) => b.pct - a.pct);
+  const rows = sorted.map(d => {
+    const barW = Math.min(100, d.pct);
+    const barColor = d.onTrack ? '#10b981' : '#ef4444';
+    const callsLeft = Math.max(0, currentGroup - d.calls);
+    const depTag = (includeDeputy && d.depCalls > 0) ? `<span class="deputy-badge">+${d.depCalls} watch</span>` : '';
+    return `<tr>
+      <td style="font-weight:500">${d.name} <span class="unit-badge">${d.id}</span>${depTag}</td>
+      <td class="right">${d.calls}</td>
+      <td class="right">
+        <div class="prog-wrap"><div class="prog-fill" style="width:${barW}%;background:${barColor}"></div></div>
+        <span class="pct-label">${d.pct}%</span>
+      </td>
+      <td class="right"><span class="badge ${d.onTrack ? 'on-track' : 'behind'}">${d.onTrack ? 'On track' : 'Behind'}</span></td>
+      <td class="right hide-mobile"><span class="calls-left">${callsLeft > 0 ? callsLeft + ' left' : '✓ Done'}</span></td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('main-table').innerHTML = `
+    <thead><tr>
+      <th>Name</th>
+      <th class="right">Calls</th>
+      <th class="right">Pace (need ${Math.round(needed)})</th>
+      <th class="right">Status</th>
+      <th class="right hide-mobile">Left to goal</th>
+    </tr></thead>
+    <tbody>${rows}</tbody>
+  `;
+}
+
+loadData();
+</script>
+</body>
+</html>
