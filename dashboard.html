@@ -13,14 +13,17 @@
   *{box-sizing:border-box;margin:0;padding:0}
   body{font-family:"Segoe UI",system-ui,-apple-system,sans-serif;background:var(--paper);color:var(--ink);line-height:1.4;-webkit-text-size-adjust:100%}
   .wrap{max-width:1080px;margin:0 auto;padding:16px}
-  header{padding:18px 0 12px;border-bottom:2px solid var(--ink)}
-  .kicker{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:700}
+  header{padding:20px 18px 16px;margin:0 -18px 4px;border-bottom:3px solid var(--accent);
+    background:linear-gradient(135deg,#0f1b2d 0%,#1c3a5e 55%,#a5271f 130%);border-radius:0 0 14px 14px}
+  .kicker{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:#ffd9d5;font-weight:700}
+  header h1{color:#fff}
+  .sub{color:#c8d4e2;font-size:.9rem;margin-top:4px}
+  .sub strong{color:#fff}
+  .nav a{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.25);color:#e6edf5}
+  .nav a.on{background:#fff;color:var(--ink);border-color:#fff}
   h1{font-size:1.7rem;font-weight:800;letter-spacing:-.01em;margin-top:2px}
-  .sub{color:var(--muted);font-size:.9rem;margin-top:4px}
-  .sub strong{color:var(--ink)}
   .nav{display:flex;gap:8px;margin-top:12px}
-  .nav a{font-size:.85rem;font-weight:700;text-decoration:none;color:var(--muted);padding:8px 14px;border:1px solid var(--line);border-radius:8px;background:var(--card)}
-  .nav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .nav a{font-size:.85rem;font-weight:700;text-decoration:none;padding:8px 14px;border:1px solid;border-radius:8px}
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
   .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:12px 14px}
   .stat .n{font-size:1.5rem;font-weight:800;line-height:1}
@@ -85,6 +88,8 @@
     h1{font-size:1.35rem}.stats{grid-template-columns:repeat(2,1fr)}
     .hide-sm{display:none}td,th{padding:9px 8px;font-size:.85rem}.prog{min-width:84px}
     .wrap{padding:12px}
+    header{margin:0 -12px 4px;padding:18px 14px 14px}
+    h1{color:#fff}
     .controls{gap:8px;margin:12px 0}
     .search{flex:1 1 100%;min-width:0;font-size:16px}
     .seg{display:flex;width:100%}
@@ -98,10 +103,11 @@
     table{table-layout:fixed;width:100%}
     th{font-size:.6rem;padding:8px 4px;letter-spacing:.02em}
     .num{font-size:.9rem}
-    th[data-k="name"]{width:34%}
-    th[data-k="calls"]{width:16%}
-    th[data-k="bars"]{width:36%}
-    th[data-k="trend"]{width:14%}
+    th[data-k="name"]{width:32%}
+    th[data-k="calls"]{width:20%;text-align:right}
+    th[data-k="bars"]{width:34%}
+    th[data-k="trend"]{width:14%;text-align:right}
+    th#callsHead{white-space:normal;line-height:1.05}
     .mbars{transform:scale(.82);transform-origin:left center}
     .mbars .track,.mbars .col{height:28px}
     .mbars .b{width:6px}
@@ -263,9 +269,11 @@ function render(){
   document.querySelectorAll(".mrow").forEach(tr=>tr.addEventListener("click",()=>openMember(tr.dataset.id)));
   document.getElementById("empty").style.display=rows.length?"none":"block";
   document.querySelectorAll("th").forEach(th=>{th.classList.toggle("sorted",th.dataset.k===k);th.classList.toggle("asc",th.dataset.k===k&&state.asc);});
-  // header label reflects period
-  document.getElementById("callsHead").textContent =
-    state.period==="quarter"?"Calls (Q2)":state.period==="month"?("Calls ("+fmtM(state.selMonth)+")"):"Calls (YTD)";
+  // header label reflects period (compact on mobile)
+  const isNarrow = window.matchMedia("(max-width:640px)").matches;
+  document.getElementById("callsHead").textContent = isNarrow
+    ? (state.period==="quarter"?"Q2":state.period==="month"?fmtM(state.selMonth):"YTD")
+    : (state.period==="quarter"?"Calls (Q2)":state.period==="month"?("Calls ("+fmtM(state.selMonth)+")"):"Calls (YTD)");
 }
 
 function updateNote(){
