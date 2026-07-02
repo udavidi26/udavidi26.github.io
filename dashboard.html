@@ -83,6 +83,26 @@
   @media(max-width:640px){
     h1{font-size:1.35rem}.stats{grid-template-columns:repeat(2,1fr)}
     .hide-sm{display:none}td,th{padding:9px 8px;font-size:.85rem}.prog{min-width:84px}
+    .wrap{padding:12px}
+    .controls{gap:8px;margin:12px 0}
+    .search{flex:1 1 100%;min-width:0;font-size:16px}
+    .seg{display:flex;width:100%}
+    .seg button{flex:1;padding:9px 6px;font-size:.78rem;text-align:center}
+    .declinebtn{width:100%;text-align:center}
+    .declineactive{align-self:flex-start}
+    td,th{padding:9px 7px}
+    .name{font-size:.9rem}.id{font-size:.72rem}
+    .trendchip{font-size:.8rem}
+    /* keep the 6-month bars on mobile, just tighter */
+    .mbars .track,.mbars .col{height:30px}
+    .mbars .b{width:7px}
+    .mbars .lb{width:7px;font-size:7px}
+    .mbars .labels{gap:2px}.mbars .track{gap:2px}
+    td.bars-col{padding:6px 4px}
+  }
+  @media(max-width:400px){
+    .stats{grid-template-columns:1fr}
+    .seg button{font-size:.72rem;padding:8px 4px}
   }
 
   .mbars{display:inline-flex;flex-direction:column;gap:3px;vertical-align:middle}
@@ -156,7 +176,7 @@
   <th data-k="name">Member</th>
   <th data-k="type" class="hide-sm">Type</th>
   <th data-k="calls" class="num" id="callsHead">Calls</th>
-  <th data-k="bars" class="hide-sm">6-month calls</th>
+  <th data-k="bars" class="bars-col">6-month calls</th>
   <th data-k="trend">Trend (3 mo)</th>
 </tr></thead><tbody id="tbody"></tbody></table>
 <div class="empty" id="empty" style="display:none">No members match.</div></div>
@@ -226,7 +246,7 @@ function render(){
       <td><div class="name">${r.m.first} ${r.m.last}</div><div class="id">${r.m.id||""}</div></td>
       <td class="hide-sm"><span class="tag ${r.m.type}">${r.m.type}</span></td>
       <td class="num">${r.calls}</td>
-      <td class="hide-sm">${bars(r.m,t.dir)}</td>
+      <td class="bars-col">${bars(r.m,t.dir)}</td>
       <td><span class="trendchip ${t.dir}"><span class="arw">${arrow}</span> ${pctxt}</span></td>
     </tr>`;}).join("");
   document.querySelectorAll(".mrow").forEach(tr=>tr.addEventListener("click",()=>openMember(tr.dataset.id)));
