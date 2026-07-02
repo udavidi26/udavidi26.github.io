@@ -265,7 +265,7 @@ function renderStats(){
   document.getElementById("sbTotal").textContent=total.toLocaleString();
 
   // ── Monthly line chart (SVG, smooth) ──
-  const W=520,H=176,padL=14,padR=14,padTop=34,padBot=28;
+  const W=520,H=176,padL=32,padR=32,padTop=34,padBot=28;
   const iw=W-padL-padR, ih=H-padTop-padBot;
   const hi=Math.max(...mvals), lo=Math.min(...mvals);
   const top=hi+ (hi-lo)*0.35 + 40, bot=lo-(hi-lo)*0.35-40; // headroom so labels/points don't touch edges
