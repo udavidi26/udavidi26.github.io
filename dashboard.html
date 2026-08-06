@@ -167,6 +167,7 @@
   .sbtotal span{font-size:1.3rem;font-weight:800;color:var(--ink)}
   .sbgrid{display:grid;grid-template-columns:1fr 1fr;gap:22px}
   .sblabel{font-size:.72rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px}
+  .sbpanel.town-rim{border:2px solid var(--bls);border-radius:10px;padding:12px 14px}
   /* monthly: SVG line chart */
   .sbchart{width:100%}
   #sbMonth svg{display:block}
@@ -204,7 +205,7 @@
       <div class="sblabel">Calls per month</div>
       <div class="sbchart" id="sbMonth"></div>
     </div>
-    <div class="sbpanel">
+    <div class="sbpanel town-rim">
       <div class="sblabel">Calls per town</div>
       <div class="sbchart sbtown" id="sbTown"></div>
     </div>
