@@ -173,6 +173,8 @@
   /* monthly: SVG line chart */
   .sbchart{width:100%}
   #sbMonth svg{display:block}
+  .sbnote{display:none;font-size:.7rem;color:var(--muted);margin-top:8px}
+  .sbnote.show{display:block}
   /* towns: horizontal bars */
   .sbtown{display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;gap:7px}
   .sbrow{display:flex;align-items:center;gap:8px}
@@ -199,13 +201,14 @@
 
 <div class="statsboard" id="statsboard">
   <div class="sbhead">
-    <div class="sbtitle">Call Volume · Jan–Aug 2026</div>
+    <div class="sbtitle">Call Volume · Jan–Nov 2026</div>
     <div class="sbtotal"><span id="sbTotal">0</span> total calls</div>
   </div>
   <div class="sbgrid">
     <div class="sbpanel">
       <div class="sblabel">Calls per month</div>
       <div class="sbchart" id="sbMonth"></div>
+      <p class="sbnote" id="sbNote"></p>
     </div>
     <div class="sbpanel town-rim">
       <div class="sblabel">Calls per town</div>
@@ -257,10 +260,13 @@
 const SHEET_CSV="";
 const MONTHS=["2026-01","2026-02","2026-03","2026-04","2026-05","2026-06","2026-07","2026-08"];             // ["2026-01"...]
 
-// ── Call-volume stats (from CAD export, Jan–Aug 2026) ──
+// ── Call-volume stats (from CAD export, Jan 1 – Nov 15 2026) ──
+// PARTIAL_MONTH is rendered dashed/muted on the line chart so a half month
+// doesn't read as a collapse in volume. Clear it once November closes.
+const PARTIAL_MONTH="2026-11";
 const CALL_STATS={
-  month:{"2026-01":1753,"2026-02":1644,"2026-03":2012,"2026-04":1744,"2026-05":1907,"2026-06":1944,"2026-07":1901,"2026-08":1817},
-  town:{"Lakewood":11122,"Jackson":1495,"Toms River":1098,"Howell":408,"Manchester":122,"Other":477}
+  month:{"2026-01":1753,"2026-02":1644,"2026-03":2012,"2026-04":1744,"2026-05":1907,"2026-06":1944,"2026-07":1901,"2026-08":1817,"2026-09":1865,"2026-10":1858,"2026-11":908},
+  town:{"Lakewood":14560,"Jackson":1961,"Toms River":1447,"Howell":548,"Manchester":160,"Other":677}
 };
 function renderStats(){
   const mk=Object.keys(CALL_STATS.month);
@@ -279,7 +285,9 @@ function renderStats(){
   const Y=v=>padTop+ih-((v-bot)/rng)*ih;
   const MON_ABBR=["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   const monLabel=k=>MON_ABBR[parseInt(k.split("-")[1],10)-1];
-  const pts=mvals.map((v,i)=>({x:X(i),y:Y(v),v,label:monLabel(mk[i])}));
+  const pIdx=mk.indexOf(PARTIAL_MONTH);           // -1 when every month is complete
+  const pts=mvals.map((v,i)=>({x:X(i),y:Y(v),v,label:monLabel(mk[i]),partial:i===pIdx}));
+  const solid=pIdx>=0?pts.slice(0,pIdx):pts;      // smooth line spans complete months only
   // smooth path (catmull-rom -> bezier)
   function smooth(p){
     if(p.length<2) return "";
@@ -292,8 +300,9 @@ function renderStats(){
     }
     return d;
   }
-  const line=smooth(pts);
-  const area=line+` L${pts[pts.length-1].x.toFixed(1)} ${(padTop+ih).toFixed(1)} L${pts[0].x.toFixed(1)} ${(padTop+ih).toFixed(1)} Z`;
+  const line=smooth(solid);
+  const last=solid[solid.length-1];
+  const area=line+` L${last.x.toFixed(1)} ${(padTop+ih).toFixed(1)} L${solid[0].x.toFixed(1)} ${(padTop+ih).toFixed(1)} Z`;
   let svg=`<svg viewBox="0 0 ${W} ${H}" width="100%" preserveAspectRatio="xMidYMid meet">`;
   // baseline
   svg+=`<line x1="${padL}" y1="${(padTop+ih).toFixed(1)}" x2="${(W-padR)}" y2="${(padTop+ih).toFixed(1)}" stroke="var(--line)" stroke-width="1"/>`;
@@ -302,13 +311,20 @@ function renderStats(){
       +`<stop offset="100%" stop-color="var(--bls)" stop-opacity="0"/></linearGradient></defs>`;
   svg+=`<path d="${area}" fill="url(#sbgrad)"/>`;
   svg+=`<path d="${line}" fill="none" stroke="var(--bls)" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+  if(pIdx>=0){ const pp=pts[pIdx];
+    svg+=`<path d="M${last.x.toFixed(1)} ${last.y.toFixed(1)} L${pp.x.toFixed(1)} ${pp.y.toFixed(1)}" fill="none" stroke="var(--muted)" stroke-width="2" stroke-dasharray="4 4" stroke-linecap="round"/>`; }
+  const vfs=pts.length>9?11:13, lfs=pts.length>9?10.5:12;   // keep labels from colliding at 11+ points
   pts.forEach(p=>{
-    svg+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#fff" stroke="var(--bls)" stroke-width="2.5"/>`;
-    svg+=`<text x="${p.x.toFixed(1)}" y="${(p.y-13).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="var(--ink)">${p.v.toLocaleString()}</text>`;
-    svg+=`<text x="${p.x.toFixed(1)}" y="${(padTop+ih+18).toFixed(1)}" text-anchor="middle" font-size="12" fill="var(--muted)">${p.label}</text>`;
+    const col=p.partial?"var(--muted)":"var(--bls)";
+    svg+=`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="#fff" stroke="${col}" stroke-width="2.5"/>`;
+    svg+=`<text x="${p.x.toFixed(1)}" y="${(p.y-13).toFixed(1)}" text-anchor="middle" font-size="${vfs}" font-weight="800" fill="${p.partial?"var(--muted)":"var(--ink)"}">${p.v.toLocaleString()}</text>`;
+    svg+=`<text x="${p.x.toFixed(1)}" y="${(padTop+ih+18).toFixed(1)}" text-anchor="middle" font-size="${lfs}" fill="var(--muted)">${p.label}${p.partial?"*":""}</text>`;
   });
   svg+=`</svg>`;
   document.getElementById("sbMonth").innerHTML=svg;
+  const nt=document.getElementById("sbNote");
+  if(pIdx>=0){ nt.textContent="* "+MON_ABBR[parseInt(PARTIAL_MONTH.split("-")[1],10)-1]+" is a partial month — calls through Nov 15 only."; nt.classList.add("show"); }
+  else nt.classList.remove("show");
 
   // ── Towns (fixed order, not sorted, so Manchester stays above Other) ──
   const towns=Object.entries(CALL_STATS.town);
